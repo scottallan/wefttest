@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>GitHub Audit Dashboard — Login</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <main class="login-page">
+    <div class="login-card">
+      <h1>GitHub Audit Dashboard</h1>
+      <p>Sign in with GitHub to view an audit of every repository you can access.</p>
+      <div id="error-banner" class="error-banner" hidden></div>
+      <a class="github-login-btn" href="/auth/login">Login with GitHub</a>
+    </div>
+  </main>
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const error = params.get('error');
+    if (error) {
+      const banner = document.getElementById('error-banner');
+      const messages = {
+        access_denied: 'You denied the GitHub OAuth request. Please try again to continue.',
+        invalid_state: 'Your login attempt could not be verified (invalid state). Please try again.',
+        missing_code: 'GitHub did not return an authorization code. Please try again.',
+        token_exchange_failed: 'We could not complete sign-in with GitHub. Please try again.',
+        session_error: 'We could not establish a session. Please try again.',
+        session_expired: 'Your session expired or was revoked. Please log in again.',
+      };
+      banner.textContent = messages[error] || `Login failed: ${error}`;
+      banner.hidden = false;
+    }
+  </script>
+</body>
+</html>

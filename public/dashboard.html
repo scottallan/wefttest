@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>GitHub Audit Dashboard</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <header class="topbar">
+    <h1>GitHub Audit Dashboard</h1>
+    <form action="/auth/logout" method="get"><button type="submit" class="logout-btn">Logout</button></form>
+  </header>
+
+  <main id="app">
+    <div id="rate-limit-banner" class="rate-limit-banner" hidden></div>
+    <div id="partial-banner" class="partial-banner" hidden>
+      Result set is partial due to GitHub API rate limiting — not all repositories could be loaded.
+    </div>
+    <div id="loading" class="loading">Loading repositories from GitHub…</div>
+    <div id="error" class="error-banner" hidden></div>
+
+    <section id="summary" class="summary" hidden>
+      <div class="stat"><span class="stat-value" id="stat-total">0</span><span class="stat-label">Total repos</span></div>
+      <div class="stat"><span class="stat-value" id="stat-public">0</span><span class="stat-label">Public</span></div>
+      <div class="stat"><span class="stat-value" id="stat-private">0</span><span class="stat-label">Private</span></div>
+      <div class="stat"><span class="stat-value" id="stat-stars">0</span><span class="stat-label">Total stars</span></div>
+      <div class="stat"><span class="stat-value" id="stat-forks">0</span><span class="stat-label">Total forks</span></div>
+      <div class="stat stat-languages"><span class="stat-label">Languages</span><div id="stat-language-list"></div></div>
+    </section>
+
+    <section id="controls" class="controls" hidden>
+      <label for="sort-key">Sort by</label>
+      <select id="sort-key">
+        <option value="stars">Stars</option>
+        <option value="updatedAt">Last updated</option>
+        <option value="size">Size</option>
+      </select>
+      <button id="sort-direction" type="button" data-direction="desc">Descending ▼</button>
+    </section>
+
+    <table id="repo-table" class="repo-table" hidden>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Owner</th>
+          <th>Description</th>
+          <th>Visibility</th>
+          <th>Primary language</th>
+          <th>Languages</th>
+          <th>Stars</th>
+          <th>Forks</th>
+          <th>Watchers</th>
+          <th>Open issues</th>
+          <th>Open PRs</th>
+          <th>Size (KB)</th>
+          <th>Default branch</th>
+          <th>License</th>
+          <th>Archived</th>
+          <th>Disabled</th>
+          <th>Created</th>
+          <th>Updated</th>
+          <th>Last push</th>
+          <th>Last commit</th>
+        </tr>
+      </thead>
+      <tbody id="repo-table-body"></tbody>
+    </table>
+
+    <div id="empty-state" class="empty-state" hidden>No accessible repositories were found for this account.</div>
+  </main>
+
+  <script src="/sort.js"></script>
+  <script src="/dashboard.js"></script>
+</body>
+</html>
