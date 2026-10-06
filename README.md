@@ -11,6 +11,9 @@ statistics, sorting, and graceful GitHub API rate-limit handling.
    deployed URL).
 2. Copy `.env.example` to `.env` and fill in `GITHUB_CLIENT_ID`, `GITHUB_CLIENT_SECRET`,
    and a random `SESSION_SECRET`.
+   - `PORT` controls which port the HTTP server listens on. It defaults to `3000` when
+     unset. If set, it must be a whole number between 1 and 65535, or the server will
+     exit at startup with a descriptive error.
 3. Install dependencies and run:
 
    ```
