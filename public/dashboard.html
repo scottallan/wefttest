@@ -28,43 +28,35 @@
       <div class="stat stat-languages"><span class="stat-label">Languages</span><div id="stat-language-list"></div></div>
     </section>
 
-    <section id="controls" class="controls" hidden>
-      <label for="sort-key">Sort by</label>
-      <select id="sort-key">
-        <option value="stars">Stars</option>
-        <option value="updatedAt">Last updated</option>
-        <option value="size">Size</option>
-      </select>
-      <button id="sort-direction" type="button" data-direction="desc">Descending ▼</button>
-    </section>
-
+    <div id="table-scroll" class="table-scroll">
     <table id="repo-table" class="repo-table" hidden>
       <thead>
         <tr>
-          <th>Name</th>
-          <th>Owner</th>
-          <th>Description</th>
-          <th>Visibility</th>
-          <th>Primary language</th>
-          <th>Languages</th>
-          <th>Stars</th>
-          <th>Forks</th>
-          <th>Watchers</th>
-          <th>Open issues</th>
-          <th>Open PRs</th>
-          <th>Size (KB)</th>
-          <th>Default branch</th>
-          <th>License</th>
-          <th>Archived</th>
-          <th>Disabled</th>
-          <th>Created</th>
-          <th>Updated</th>
-          <th>Last push</th>
-          <th>Last commit</th>
+          <th scope="col" data-key="name" data-type="string"><button type="button" class="sort-btn">Name<span class="sort-indicator" aria-hidden="true"></span></button></th>
+          <th scope="col" data-key="owner" data-type="string"><button type="button" class="sort-btn">Owner<span class="sort-indicator" aria-hidden="true"></span></button></th>
+          <th scope="col" data-key="description" data-type="string"><button type="button" class="sort-btn">Description<span class="sort-indicator" aria-hidden="true"></span></button></th>
+          <th scope="col" data-key="visibility" data-type="string"><button type="button" class="sort-btn">Visibility<span class="sort-indicator" aria-hidden="true"></span></button></th>
+          <th scope="col" data-key="primaryLanguage" data-type="string"><button type="button" class="sort-btn">Primary language<span class="sort-indicator" aria-hidden="true"></span></button></th>
+          <th scope="col" data-key="languages" data-type="string"><button type="button" class="sort-btn">Languages<span class="sort-indicator" aria-hidden="true"></span></button></th>
+          <th scope="col" data-key="stars" data-type="number"><button type="button" class="sort-btn">Stars<span class="sort-indicator" aria-hidden="true"></span></button></th>
+          <th scope="col" data-key="forks" data-type="number"><button type="button" class="sort-btn">Forks<span class="sort-indicator" aria-hidden="true"></span></button></th>
+          <th scope="col" data-key="watchers" data-type="number"><button type="button" class="sort-btn">Watchers<span class="sort-indicator" aria-hidden="true"></span></button></th>
+          <th scope="col" data-key="openIssuesCount" data-type="number"><button type="button" class="sort-btn">Open issues<span class="sort-indicator" aria-hidden="true"></span></button></th>
+          <th scope="col" data-key="openPullRequestsCount" data-type="number"><button type="button" class="sort-btn">Open PRs<span class="sort-indicator" aria-hidden="true"></span></button></th>
+          <th scope="col" data-key="size" data-type="number"><button type="button" class="sort-btn">Size (KB)<span class="sort-indicator" aria-hidden="true"></span></button></th>
+          <th scope="col" data-key="defaultBranch" data-type="string"><button type="button" class="sort-btn">Default branch<span class="sort-indicator" aria-hidden="true"></span></button></th>
+          <th scope="col" data-key="license" data-type="string"><button type="button" class="sort-btn">License<span class="sort-indicator" aria-hidden="true"></span></button></th>
+          <th scope="col" data-key="archived" data-type="string"><button type="button" class="sort-btn">Archived<span class="sort-indicator" aria-hidden="true"></span></button></th>
+          <th scope="col" data-key="disabled" data-type="string"><button type="button" class="sort-btn">Disabled<span class="sort-indicator" aria-hidden="true"></span></button></th>
+          <th scope="col" data-key="createdAt" data-type="date"><button type="button" class="sort-btn">Created<span class="sort-indicator" aria-hidden="true"></span></button></th>
+          <th scope="col" data-key="updatedAt" data-type="date"><button type="button" class="sort-btn">Updated<span class="sort-indicator" aria-hidden="true"></span></button></th>
+          <th scope="col" data-key="pushedAt" data-type="date"><button type="button" class="sort-btn">Last push<span class="sort-indicator" aria-hidden="true"></span></button></th>
+          <th scope="col" data-key="lastCommitDate" data-type="date"><button type="button" class="sort-btn">Last commit<span class="sort-indicator" aria-hidden="true"></span></button></th>
         </tr>
       </thead>
       <tbody id="repo-table-body"></tbody>
     </table>
+    </div>
 
     <div id="empty-state" class="empty-state" hidden>No accessible repositories were found for this account.</div>
   </main>
