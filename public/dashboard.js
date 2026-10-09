@@ -1,8 +1,8 @@
 (function () {
   var state = {
     repos: [],
-    sortKey: 'stars',
-    sortDirection: 'desc',
+    sortKey: null,
+    sortDirection: null,
   };
 
   function formatDate(iso) {
@@ -26,6 +26,41 @@
     return String(repo.openPullRequestsCount);
   }
 
+  function pullRequestsSortValue(repo) {
+    if (repo.pullRequestsError) return null;
+    return repo.openPullRequestsCount;
+  }
+
+  function languagesSortValue(repo) {
+    if (repo.languagesError) return 'unavailable';
+    return formatLanguages(repo);
+  }
+
+  // Column order here must match the <th> order in dashboard.html exactly —
+  // it drives both cell rendering and per-column sort comparisons.
+  var COLUMNS = [
+    { key: 'name', type: 'string', display: function (r) { return r.name; }, sortValue: function (r) { return r.name; } },
+    { key: 'owner', type: 'string', display: function (r) { return r.owner; }, sortValue: function (r) { return r.owner; } },
+    { key: 'description', type: 'string', display: function (r) { return r.description || '—'; }, sortValue: function (r) { return r.description; } },
+    { key: 'visibility', type: 'string', display: function (r) { return r.visibility; }, sortValue: function (r) { return r.visibility; } },
+    { key: 'primaryLanguage', type: 'string', display: function (r) { return r.primaryLanguage || 'None detected'; }, sortValue: function (r) { return r.primaryLanguage; } },
+    { key: 'languages', type: 'string', display: formatLanguages, sortValue: languagesSortValue },
+    { key: 'stars', type: 'number', display: function (r) { return String(r.stars); }, sortValue: function (r) { return r.stars; } },
+    { key: 'forks', type: 'number', display: function (r) { return String(r.forks); }, sortValue: function (r) { return r.forks; } },
+    { key: 'watchers', type: 'number', display: function (r) { return String(r.watchers); }, sortValue: function (r) { return r.watchers; } },
+    { key: 'openIssuesCount', type: 'number', display: function (r) { return String(r.openIssuesCount); }, sortValue: function (r) { return r.openIssuesCount; } },
+    { key: 'openPullRequestsCount', type: 'number', display: formatPullRequests, sortValue: pullRequestsSortValue },
+    { key: 'size', type: 'number', display: function (r) { return String(r.size); }, sortValue: function (r) { return r.size; } },
+    { key: 'defaultBranch', type: 'string', display: function (r) { return r.defaultBranch; }, sortValue: function (r) { return r.defaultBranch; } },
+    { key: 'license', type: 'string', display: function (r) { return r.license || 'No license'; }, sortValue: function (r) { return r.license; } },
+    { key: 'archived', type: 'string', display: function (r) { return r.archived ? 'Yes' : 'No'; }, sortValue: function (r) { return r.archived ? 'Yes' : 'No'; } },
+    { key: 'disabled', type: 'string', display: function (r) { return r.disabled ? 'Yes' : 'No'; }, sortValue: function (r) { return r.disabled ? 'Yes' : 'No'; } },
+    { key: 'createdAt', type: 'date', display: function (r) { return formatDate(r.createdAt); }, sortValue: function (r) { return r.createdAt; } },
+    { key: 'updatedAt', type: 'date', display: function (r) { return formatDate(r.updatedAt); }, sortValue: function (r) { return r.updatedAt; } },
+    { key: 'pushedAt', type: 'date', display: function (r) { return formatDate(r.pushedAt); }, sortValue: function (r) { return r.pushedAt; } },
+    { key: 'lastCommitDate', type: 'date', display: function (r) { return r.lastCommitDate ? formatDate(r.lastCommitDate) : 'Unavailable'; }, sortValue: function (r) { return r.lastCommitDate; } },
+  ];
+
   function cell(text) {
     var td = document.createElement('td');
     td.textContent = text;
@@ -36,32 +71,49 @@
     var tbody = document.getElementById('repo-table-body');
     tbody.innerHTML = '';
 
-    var sorted = window.AuditDashboardSort.sortRepos(state.repos, state.sortKey, state.sortDirection);
+    var rows = state.repos;
+    if (state.sortKey) {
+      var column = COLUMNS.filter(function (c) { return c.key === state.sortKey; })[0];
+      rows = window.AuditDashboardSort.sortByColumn(rows, column.sortValue, column.type, state.sortDirection);
+    }
 
-    sorted.forEach(function (repo) {
+    rows.forEach(function (repo) {
       var tr = document.createElement('tr');
-      tr.appendChild(cell(repo.name));
-      tr.appendChild(cell(repo.owner));
-      tr.appendChild(cell(repo.description || '—'));
-      tr.appendChild(cell(repo.visibility));
-      tr.appendChild(cell(repo.primaryLanguage || 'None detected'));
-      tr.appendChild(cell(formatLanguages(repo)));
-      tr.appendChild(cell(String(repo.stars)));
-      tr.appendChild(cell(String(repo.forks)));
-      tr.appendChild(cell(String(repo.watchers)));
-      tr.appendChild(cell(String(repo.openIssuesCount)));
-      tr.appendChild(cell(formatPullRequests(repo)));
-      tr.appendChild(cell(String(repo.size)));
-      tr.appendChild(cell(repo.defaultBranch));
-      tr.appendChild(cell(repo.license || 'No license'));
-      tr.appendChild(cell(repo.archived ? 'Yes' : 'No'));
-      tr.appendChild(cell(repo.disabled ? 'Yes' : 'No'));
-      tr.appendChild(cell(formatDate(repo.createdAt)));
-      tr.appendChild(cell(formatDate(repo.updatedAt)));
-      tr.appendChild(cell(formatDate(repo.pushedAt)));
-      tr.appendChild(cell(repo.lastCommitDate ? formatDate(repo.lastCommitDate) : 'Unavailable'));
+      COLUMNS.forEach(function (column) {
+        tr.appendChild(cell(column.display(repo)));
+      });
       tbody.appendChild(tr);
     });
+  }
+
+  function updateSortIndicators() {
+    var headers = document.querySelectorAll('#repo-table th[data-key]');
+    headers.forEach(function (th) {
+      var key = th.getAttribute('data-key');
+      var indicator = th.querySelector('.sort-indicator');
+      if (key === state.sortKey) {
+        var ascending = state.sortDirection === 'asc';
+        th.setAttribute('aria-sort', ascending ? 'ascending' : 'descending');
+        th.classList.add('is-sorted');
+        indicator.textContent = ascending ? '▲' : '▼';
+      } else {
+        th.setAttribute('aria-sort', 'none');
+        th.classList.remove('is-sorted');
+        indicator.textContent = '';
+      }
+    });
+  }
+
+  function handleHeaderClick(th) {
+    var key = th.getAttribute('data-key');
+    if (state.sortKey === key) {
+      state.sortDirection = state.sortDirection === 'asc' ? 'desc' : 'asc';
+    } else {
+      state.sortKey = key;
+      state.sortDirection = 'asc';
+    }
+    updateSortIndicators();
+    renderTable();
   }
 
   function renderSummary(aggregate) {
@@ -135,9 +187,9 @@
       }
 
       document.getElementById('summary').hidden = false;
-      document.getElementById('controls').hidden = false;
       document.getElementById('repo-table').hidden = false;
       renderSummary(data.aggregate);
+      updateSortIndicators();
       renderTable();
     } catch (err) {
       loading.hidden = true;
@@ -146,17 +198,10 @@
   }
 
   document.addEventListener('DOMContentLoaded', function () {
-    document.getElementById('sort-key').addEventListener('change', function (e) {
-      state.sortKey = e.target.value;
-      renderTable();
-    });
-    document.getElementById('sort-direction').addEventListener('click', function (e) {
-      var current = e.target.getAttribute('data-direction');
-      var next = current === 'asc' ? 'desc' : 'asc';
-      e.target.setAttribute('data-direction', next);
-      e.target.textContent = next === 'asc' ? 'Ascending ▲' : 'Descending ▼';
-      state.sortDirection = next;
-      renderTable();
+    document.querySelectorAll('#repo-table th[data-key]').forEach(function (th) {
+      th.querySelector('.sort-btn').addEventListener('click', function () {
+        handleHeaderClick(th);
+      });
     });
 
     loadDashboard();
